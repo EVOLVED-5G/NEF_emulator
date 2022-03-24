@@ -6,7 +6,7 @@ Library         /opt/robot-tests/tests/libraries/allBodyRequests.py
 
 
 *** Variables ***
-${NGINX_HOSTNAME}           http://nef_emulator-main_backend_1:80
+#${NGINX_HOSTNAME}           http://nef_emulator-main_backend_1:80
 ${NETAPP_NOT_REGISTERED}    not-valid
 ${NEF_BEARER}   
 
