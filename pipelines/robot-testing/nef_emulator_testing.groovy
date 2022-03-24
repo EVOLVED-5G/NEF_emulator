@@ -5,13 +5,11 @@ String runCapifLocal(String nginxHost) {
 
 pipeline{
 
-    agent { node { label 'evol5-slave' }  }
+    agent { node { label 'devops' }  }
 
     parameters{
-        // nginx-evolved5g.apps-dev.hi.inet
-        string(name: 'NGINX_HOSTNAME', defaultValue: 'http://localhost:8888', description: 'nginx hostname')
+        string(name: 'NGINX_HOSTNAME', defaultValue: 'http://localhost:8888', description: 'nginx hostname')        // nginx-evolved5g.apps-dev.hi.inet
         string(name: 'ROBOT_DOCKER_IMAGE_VERSION', defaultValue: '2.0', description: 'Robot Docker image version')
-        string(name: 'ROBOT_TEST_OPTIONS', defaultValue: '', description: 'Options to set in test to robot testing. --variable <key>:<value>, --include <tag>, --exclude <tag>')
         string(name: 'NEF_API_HOSTNAME', defaultValue: 'https://5g-api-emulator.medianetlab.eu', description: 'netapp hostname')
     }
 
@@ -25,10 +23,33 @@ pipeline{
         NEF_API_HOSTNAME="${params.NEF_API_HOSTNAME}"
         AWS_DEFAULT_REGION = 'eu-central-1'
         OPENSHIFT_URL= 'https://openshift-epg.hi.inet:443'
-        RUN_LOCAL_NEF = runCapifLocal("${params.NEF_API_HOSTNAME}")
+        RUN_LOCAL_NEF = runCapifLocal("${params.NGINX_HOSTNAME}")
     }
 
     stages{
+        
+        stage('Login to Artifactory') {
+            steps {
+                dir ("${env.WORKSPACE}") {
+                    withCredentials([usernamePassword(
+                       credentialsId: 'docker_pull_cred',
+                       usernameVariable: 'USER',
+                       passwordVariable: 'PASS'
+                   )]) {
+                        sh '''
+                            docker login --username ${USER} --password ${PASS} dockerhub.hi.inet
+                           '''
+                   }
+                }
+                dir ("${env.WORKSPACE}") {
+                    sh """
+                        mkdir ${ROBOT_RESULTS_DIRECTORY}
+                        mkdir ${ROBOT_RESULTS_DIRECTORY}/AsSessionWithQoSAPI
+                        mkdir ${ROBOT_RESULTS_DIRECTORY}/MonitoringEventAPI
+                    """
+                }
+            }
+        }
 
         stage("Run Nef locally."){
 
@@ -42,65 +63,36 @@ pipeline{
                         dir ("${NEF_EMULATOR_DIRECTORY}") {
                             sh '''
 	                            cp env-file-for-local.dev .env
-                                docker-compose --profile dev up -d
+                                docker-compose --profile dev up -d --build --quiet-pull
                                 docker-compose ps -a 
+                                sleep 15
                             '''
                         }
-                    }
-                }
-                stage("Run test cases."){
-                    steps{
-                        sh """
-                            docker logs nef_emulator_validation_testing_backend_1
-                            docker exec robot bash -c "robot ./tests/features/NEF_AsSessionWithQoS_API/nef_subscriptions_api.robot; \
-                            robot ./tests/features/NEF_Monitoring_Event_API/nef_monitoring_event_api.robot;"
-                        """
                     }
                 }
             }
 
         }
 
-        stage("Run Nef in Openshift."){
-            when {
-                expression { RUN_LOCAL_NEF == 'false' }
-            }
-            stage("Login to Openshift."){
-                steps {
-                    withCredentials([string(credentialsId: '18e7aeb8-5552-4cbb-bf66-2402ca6772de', variable: 'TOKEN')]) {
-                        sh '''
-                            export KUBECONFIG="./kubeconfig"
-                            oc login --insecure-skip-tls-verify --token=$TOKEN $OPENSHIFT_URL
-                        '''
-                        readFile('kubeconfig')
-                    }
+        stage("Run test cases."){
+            steps{
+                dir ("${env.NEF_EMULATOR_DIRECTORY}") {
+                    // docker pull ${ROBOT_IMAGE_NAME}:${ROBOT_VERSION}    ${ROBOT_IMAGE_NAME}:${ROBOT_VERSION} \
+                    sh """
+                        docker build -q -t robot_image ./tools/
+                        docker run --rm -t \
+                            --name robot \
+                            --network="host" \
+                            -v ${ROBOT_TESTS_DIRECTORY}:/opt/robot-tests/tests \
+                            -v ${ROBOT_RESULTS_DIRECTORY}/AsSessionWithQoSAPI:/opt/robot-tests/results/AsSessionWithQoSAPI \
+                            -v ${ROBOT_RESULTS_DIRECTORY}/MonitoringEventAPI:/opt/robot-tests/results/MonitoringEventAPI \
+                            robot_image \
+                            /bin/bash \
+                            -c "robot --outputdir /opt/robot-tests/results/AsSessionWithQoSAPI /opt/robot-tests/tests/features/NEF_AsSessionWithQoS_API/nef_subscriptions_api.robot; \
+                            robot --outputdir /opt/robot-tests/results/MonitoringEventAPI /opt/robot-tests/tests/features/NEF_Monitoring_Event_API/nef_monitoring_event_api.robot"
+                    """
                 }
             }
-            stages{
-                stage("Create Robot Framework Deployment."){
-                    steps{
-                        dir ("${env.NEF_EMULATOR_DIRECTORY}") {
-                            withCredentials([string(credentialsId: '18e7aeb8-5552-4cbb-bf66-2402ca6772de', variable: 'TOKEN')]) {
-                                sh """
-                                    oc create -f deploymentConfig.yaml -ntest
-                                """
-                            }
-                        }
-                    }
-                }
-                stage("Run test cases."){
-                    steps{
-                        dir ("${env.NEF_EMULATOR_DIRECTORY}") {
-                            // oc cp ../tests robot-framework:/tests
-                            withCredentials([string(credentialsId: '18e7aeb8-5552-4cbb-bf66-2402ca6772de', variable: 'TOKEN')]) {
-                                sh """
-                                    oc -ntest exec -it robot-deployment -- /bin/bash -c "robot ./tests/features/NEF_AsSessionWithQoS_API/nef_subscriptions_api.robot;"                                """
-                            }
-                        }
-                    }
-                }
-            }
-
         }
 
     }
