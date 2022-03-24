@@ -79,7 +79,7 @@ pipeline{
                 dir ("${env.NEF_EMULATOR_DIRECTORY}") {
                     //  docker build -q -t robot_image ./tools/
                     sh """
-                        docker pull ${ROBOT_IMAGE_NAME}:${ROBOT_VERSION} \
+                        docker pull ${ROBOT_IMAGE_NAME}:${ROBOT_VERSION} 
                         docker run -t \
                             --name robot \
                             --network="host" \
