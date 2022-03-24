@@ -10,13 +10,13 @@ pipeline{
     parameters{
         string(name: 'NGINX_HOSTNAME', defaultValue: 'http://localhost:8888', description: 'nginx hostname')        // nginx-evolved5g.apps-dev.hi.inet
         string(name: 'ROBOT_DOCKER_IMAGE_VERSION', defaultValue: '2.0', description: 'Robot Docker image version')
-        string(name: 'NEF_API_HOSTNAME', defaultValue: 'https://5g-api-emulator.medianetlab.eu', description: 'netapp hostname')
+        // string(name: 'NEF_API_HOSTNAME', defaultValue: 'https://5g-api-emulator.medianetlab.eu', description: 'netapp hostname')
     }
 
     environment {
-        NEF_EMULATOR_DIRECTORY = "${WORKSPACE}/"
-        ROBOT_TESTS_DIRECTORY = "${WORKSPACE}/tests"
-        ROBOT_RESULTS_DIRECTORY = "${WORKSPACE}/results"
+        NEF_EMULATOR_DIRECTORY = "${WORKSPACE}/nef-emulator"
+        ROBOT_TESTS_DIRECTORY = "${WORKSPACE}/nef-emulator/tests"
+        ROBOT_RESULTS_DIRECTORY = "${WORKSPACE}/nef-emulator/results"
         NGINX_HOSTNAME = "${params.NGINX_HOSTNAME}"
         ROBOT_VERSION = "${params.ROBOT_DOCKER_IMAGE_VERSION}"
         ROBOT_IMAGE_NAME = 'dockerhub.hi.inet/dummy-netapp-testing/robot-test-image'
@@ -58,6 +58,23 @@ pipeline{
             }
 
             stages{
+                stage("Checkout"){
+                    steps{
+                        checkout([$class: 'GitSCM',
+                            branches: [[name: 'main']],
+                            doGenerateSubmoduleConfigurations: false,
+                            extensions: [[$class: 'RelativeTargetDirectory', relativeTargetDir: 'nef-emulator']], 
+                            gitTool: 'Default',
+                            submoduleCfg: [],
+                            userRemoteConfigs: [[url: 'https://github.com/EVOLVED-5G/NEF_emulator.git', credentialsId: 'github_token']]
+                        ])
+            
+                        sh '''
+                            pwd
+                            ls -la
+                        '''
+                    }
+                }
                 stage("Create Robot Framework docker container."){
                     steps {
                         dir ("${NEF_EMULATOR_DIRECTORY}") {
@@ -77,7 +94,6 @@ pipeline{
         stage("Run test cases."){
             steps{
                 dir ("${env.NEF_EMULATOR_DIRECTORY}") {
-                    //  docker build -q -t robot_image ./tools/
                     sh """
                         docker pull ${ROBOT_IMAGE_NAME}:${ROBOT_VERSION} 
                         docker run -t \
@@ -93,6 +109,7 @@ pipeline{
                             -c "robot --outputdir /opt/robot-tests/results/AsSessionWithQoSAPI /opt/robot-tests/tests/features/NEF_AsSessionWithQoS_API/nef_subscriptions_api.robot"
                     """
                     // ;\ robot --outputdir /opt/robot-tests/results/MonitoringEventAPI /opt/robot-tests/tests/features/NEF_Monitoring_Event_API/nef_monitoring_event_api.robot"
+                    // robot --outputdir /opt/robot-tests/results/AsSessionWithQoSAPI /opt/robot-tests/tests/features/NEF_AsSessionWithQoS_API/nef_subscriptions_api.robot"
                 }
             }
         }

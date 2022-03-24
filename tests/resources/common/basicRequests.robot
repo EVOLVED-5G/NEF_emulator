@@ -8,7 +8,7 @@ Library         /opt/robot-tests/tests/libraries/allBodyRequests.py
 
 *** Variables ***
 ${NGINX_HOSTNAME}           %{NGINX_HOSTNAME}
-#http://nef_emulator-main_backend_1:80 https://nginx-evolved5g.apps-dev.hi.inet:8888
+#http://nef_emulator-main_backend_1:80 
 ${NETAPP_NOT_REGISTERED}    not-valid
 ${NEF_BEARER}   
 
