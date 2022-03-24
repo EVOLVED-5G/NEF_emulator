@@ -1,12 +1,13 @@
 *** Settings ***
 Documentation    This resource file contains the basic requests used by Capif. NGINX_HOSTNAME and CAPIF_AUTH can be set as global variables, depends on environment used
+Library          OperatingSystem
 Library          RequestsLibrary
 Library          Collections
 Library         /opt/robot-tests/tests/libraries/allBodyRequests.py
 
 
 *** Variables ***
-${NGINX_HOSTNAME}           ${env.NGINX_HOSTNAME}
+${NGINX_HOSTNAME}           %{NGINX_HOSTNAME}
 #http://nef_emulator-main_backend_1:80 https://nginx-evolved5g.apps-dev.hi.inet:8888
 ${NETAPP_NOT_REGISTERED}    not-valid
 ${NEF_BEARER}   

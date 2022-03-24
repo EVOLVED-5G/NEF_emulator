@@ -87,7 +87,7 @@ pipeline{
                             -v ${ROBOT_TESTS_DIRECTORY}:/opt/robot-tests/tests \
                             -v ${ROBOT_RESULTS_DIRECTORY}/AsSessionWithQoSAPI:/opt/robot-tests/results/AsSessionWithQoSAPI \
                             -v ${ROBOT_RESULTS_DIRECTORY}/MonitoringEventAPI:/opt/robot-tests/results/MonitoringEventAPI \
-                            -e NGINX_HOSTNAME:${NGINX_HOSTNAME} \
+                            -e NGINX_HOSTNAME=${NGINX_HOSTNAME} \
                             ${ROBOT_IMAGE_NAME}:${ROBOT_VERSION} \
                             /bin/bash \
                             -c "robot --outputdir /opt/robot-tests/results/AsSessionWithQoSAPI /opt/robot-tests/tests/features/NEF_AsSessionWithQoS_API/nef_subscriptions_api.robot"
