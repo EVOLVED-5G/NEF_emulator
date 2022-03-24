@@ -80,7 +80,7 @@ pipeline{
                         dir ("${NEF_EMULATOR_DIRECTORY}") {
                             sh '''
 	                            cp env-file-for-local.dev .env
-                                docker-compose --profile dev up -d --build --quiet-pull
+                                docker-compose --log-level ERROR --profile dev up -d --build --quiet-pull
                                 docker-compose ps -a 
                                 sleep 15
                             '''
