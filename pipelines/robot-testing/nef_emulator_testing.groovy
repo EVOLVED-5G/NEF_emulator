@@ -5,7 +5,7 @@ String runCapifLocal(String nginxHost) {
 
 pipeline{
 
-    agent { node { label 'devops' }  }
+    agent { node { label 'evol5-slave' }  }
 
     parameters{
         string(name: 'NGINX_HOSTNAME', defaultValue: 'http://localhost:8888', description: 'nginx hostname')        // nginx-evolved5g.apps-dev.hi.inet
