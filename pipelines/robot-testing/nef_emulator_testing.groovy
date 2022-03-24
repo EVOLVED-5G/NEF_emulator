@@ -18,7 +18,7 @@ pipeline{
         ROBOT_TESTS_DIRECTORY = "${WORKSPACE}/tests"
         ROBOT_RESULTS_DIRECTORY = "${WORKSPACE}/results"
         NGINX_HOSTNAME = "${params.NGINX_HOSTNAME}"
-        ROBOT_VERSION = 'latest'
+        ROBOT_VERSION = "${params.ROBOT_DOCKER_IMAGE_VERSION}"
         ROBOT_IMAGE_NAME = 'dockerhub.hi.inet/dummy-netapp-testing/robot-test-image'
         NEF_API_HOSTNAME="${params.NEF_API_HOSTNAME}"
         AWS_DEFAULT_REGION = 'eu-central-1'
@@ -79,10 +79,11 @@ pipeline{
                 dir ("${env.NEF_EMULATOR_DIRECTORY}") {
                     //  docker build -q -t robot_image ./tools/
                     sh """
-                        docker pull ${ROBOT_IMAGE_NAME}:${ROBOT_VERSION}     \
-                        docker run --rm -t \
+                        docker pull ${ROBOT_IMAGE_NAME}:${ROBOT_VERSION} \
+                        docker run -t \
                             --name robot \
                             --network="host" \
+                            --rm \
                             -v ${ROBOT_TESTS_DIRECTORY}:/opt/robot-tests/tests \
                             -v ${ROBOT_RESULTS_DIRECTORY}/AsSessionWithQoSAPI:/opt/robot-tests/results/AsSessionWithQoSAPI \
                             -v ${ROBOT_RESULTS_DIRECTORY}/MonitoringEventAPI:/opt/robot-tests/results/MonitoringEventAPI \
