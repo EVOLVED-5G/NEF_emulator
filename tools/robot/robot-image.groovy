@@ -39,7 +39,7 @@ pipeline {
                    )]) {
                         sh '''
                         docker login --username ${USER} --password ${PASS} dockerhub.hi.inet
-                        docker build ${CACHE} . -t ${ROBOT_IMAGE_NAME}:${ROBOT_VERSION}
+                        docker build ${CACHE} ./robot -t ${ROBOT_IMAGE_NAME}:${ROBOT_VERSION}
                         docker push ${ROBOT_IMAGE_NAME}:${ROBOT_VERSION}
                       '''
                    }
