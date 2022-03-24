@@ -77,16 +77,16 @@ pipeline{
         stage("Run test cases."){
             steps{
                 dir ("${env.NEF_EMULATOR_DIRECTORY}") {
-                    // docker pull ${ROBOT_IMAGE_NAME}:${ROBOT_VERSION}    ${ROBOT_IMAGE_NAME}:${ROBOT_VERSION} \
+                    //                        docker build -q -t robot_image ./tools/
                     sh """
-                        docker build -q -t robot_image ./tools/
+                        docker pull ${ROBOT_IMAGE_NAME}:${ROBOT_VERSION}     \
                         docker run --rm -t \
                             --name robot \
                             --network="host" \
                             -v ${ROBOT_TESTS_DIRECTORY}:/opt/robot-tests/tests \
                             -v ${ROBOT_RESULTS_DIRECTORY}/AsSessionWithQoSAPI:/opt/robot-tests/results/AsSessionWithQoSAPI \
                             -v ${ROBOT_RESULTS_DIRECTORY}/MonitoringEventAPI:/opt/robot-tests/results/MonitoringEventAPI \
-                            robot_image \
+                            ${ROBOT_IMAGE_NAME}:${ROBOT_VERSION} \
                             /bin/bash \
                             -c "robot --outputdir /opt/robot-tests/results/AsSessionWithQoSAPI /opt/robot-tests/tests/features/NEF_AsSessionWithQoS_API/nef_subscriptions_api.robot; \
                             robot --outputdir /opt/robot-tests/results/MonitoringEventAPI /opt/robot-tests/tests/features/NEF_Monitoring_Event_API/nef_monitoring_event_api.robot"
