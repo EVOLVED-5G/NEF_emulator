@@ -15,8 +15,8 @@ pipeline{
 
     environment {
         NEF_EMULATOR_DIRECTORY = "${WORKSPACE}/nef-emulator"
-        ROBOT_TESTS_DIRECTORY = "${WORKSPACE}/nef-emulator/tests"
-        ROBOT_RESULTS_DIRECTORY = "${WORKSPACE}/nef-emulator/results"
+        ROBOT_TESTS_DIRECTORY = "${WORKSPACE}/tests"
+        ROBOT_RESULTS_DIRECTORY = "${WORKSPACE}/results"
         NGINX_HOSTNAME = "${params.NGINX_HOSTNAME}"
         ROBOT_VERSION = "${params.ROBOT_DOCKER_IMAGE_VERSION}"
         ROBOT_IMAGE_NAME = 'dockerhub.hi.inet/dummy-netapp-testing/robot-test-image'
@@ -93,7 +93,7 @@ pipeline{
 
         stage("Run test cases."){
             steps{
-                dir ("${env.NEF_EMULATOR_DIRECTORY}") {
+                dir ("${WORKSPACE}") {
                     sh """
                         docker pull ${ROBOT_IMAGE_NAME}:${ROBOT_VERSION} 
                         docker run -t \
