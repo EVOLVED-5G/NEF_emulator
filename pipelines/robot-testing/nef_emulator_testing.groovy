@@ -106,7 +106,8 @@ pipeline{
                             -e NGINX_HOSTNAME=${NGINX_HOSTNAME} \
                             ${ROBOT_IMAGE_NAME}:${ROBOT_VERSION} \
                             /bin/bash \
-                            -c "robot --outputdir /opt/robot-tests/results/AsSessionWithQoSAPI /opt/robot-tests/tests/features/NEF_AsSessionWithQoS_API/nef_subscriptions_api.robot"
+                            -c "robot --outputdir /opt/robot-tests/results/AsSessionWithQoSAPI /opt/robot-tests/tests/features/NEF_AsSessionWithQoS_API/nef_subscriptions_api.robot; \
+                            robot --outputdir /opt/robot-tests/results/MonitoringEventAPI /opt/robot-tests/tests/features/NEF_Monitoring_Event_API/nef_monitoring_event_api.robot"
                     """
                     // ;\ robot --outputdir /opt/robot-tests/results/MonitoringEventAPI /opt/robot-tests/tests/features/NEF_Monitoring_Event_API/nef_monitoring_event_api.robot"
                     // robot --outputdir /opt/robot-tests/results/AsSessionWithQoSAPI /opt/robot-tests/tests/features/NEF_AsSessionWithQoS_API/nef_subscriptions_api.robot"
