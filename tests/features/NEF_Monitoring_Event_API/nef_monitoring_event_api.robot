@@ -1,20 +1,16 @@
 *** Settings ***
-Documentation    This resource file contains the basic requests used by Nef. NGINX_HOSTNAME can be set as global variable, depends on environment used
+Documentation   This file contains the Monitoring Event Api's Test Cases. 
 Resource        /opt/robot-tests/tests/resources/common.resource
 Resource        /opt/robot-tests/tests/resources/common/basicRequests.robot
-Resource    ../../resources/common/basicRequests.robot
+Resource        ../../resources/common/basicRequests.robot
 Library         /opt/robot-tests/tests/libraries/allBodyRequests.py
-Library    Collections
-
-# Test Setup    Initialize Test, Register And Import Scenario  
+Library         Collections
         
 *** Variables ***
 ${NETAPP_NOT_REGISTERED}        not-valid
 ${SUBSCRIPTION_ID_NOT_VALID}    0
 ${access_token}                 not-valid
 ${sub_id} 
-${bool}                         True
-
 
 *** Keywords ***
 
@@ -25,7 +21,6 @@ Create Nef subscription
 
     [Tags]    create_nef_subscription
 
-    # Run Keyword If    "${bool}"==True    Register user
     Initialize Test, Register And Import Scenario    email=dummy-monitor@itml.gr    full_name=robot    password=password
 
     ${subscriber_id}=      Set Variable    ${APF_ID}
@@ -44,6 +39,8 @@ Create Nef subscription
     ${subscriber_id}    ${subscription_id}=    Get Subscriber And Subscription From Location    ${url.path}
 
     Set Global Variable    ${sub_id}    ${subscription_id}
+
+    Log To Console         Id: ${sub_id}
 
     Log To Console         Response body: ${resp.json()}
 
@@ -125,8 +122,6 @@ Read all active subscriptions by Authorized NetApp
 Read all active subscriptions by Authorized NetApp with no active ones
 
     [Tags]    get_NetApp_subscriptions_no_active
-
-    # Initialize Test, Register And Import Scenario    email=nikos@itml.gr    full_name=robot    password=password
 
     ${subscriber_id}=    Set Variable    ${APF_ID}
 
