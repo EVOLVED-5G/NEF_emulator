@@ -5,6 +5,8 @@ Resource        /opt/robot-tests/tests/resources/common/basicRequests.robot
 Resource    ../../resources/common/basicRequests.robot
 Library         /opt/robot-tests/tests/libraries/allBodyRequests.py
 Library    Collections
+
+# Test Setup    Initialize Test, Register And Import Scenario  
         
 *** Variables ***
 ${NETAPP_NOT_REGISTERED}        not-valid
