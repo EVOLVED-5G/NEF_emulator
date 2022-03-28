@@ -11,6 +11,7 @@ ${NETAPP_NOT_REGISTERED}        not-valid
 ${SUBSCRIPTION_ID_NOT_VALID}    0
 ${access_token}                 not-valid
 ${sub_id} 
+${test_id}
 
 *** Keywords ***
 
@@ -40,14 +41,14 @@ Create Nef subscription
 
     Set Global Variable    ${sub_id}    ${subscription_id}
 
-    Log To Console         Id: ${sub_id}
+    Set Global Variable    ${test_id}    ${subscriber_id}
 
     Log To Console         Response body: ${resp.json()}
 
 
 One-time request to the Monitoring Event API by Authorized NetApp
 
-    ${subscriber_id}=    Set Variable    ${APF_ID}
+    ${subscriber_id}=    Set Variable    ${test_id}
 
     ${subscription_id}=  Set Variable    ${sub_id}
 
