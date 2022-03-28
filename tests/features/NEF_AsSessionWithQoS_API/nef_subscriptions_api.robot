@@ -23,7 +23,7 @@ Create Nef subscription
 
     [Tags]    create_nef_subscription
 
-    Initialize Test, Register And Import Scenario    email=dummy-session@itml.gr    full_name=robot    password=password    #ip4=10.0.0.3    ext_id=10003@domain.com
+    Initialize Test, Register And Import Scenario    email=dummy-session@example.com   full_name=robot    password=password    #ip4=10.0.0.3    ext_id=10003@domain.com
 
     ${subscriber_id}=      Set Variable    ${APF_ID}
 

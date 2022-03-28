@@ -80,7 +80,7 @@ Delete Request Nef
 
 Register User At Jwt Auth
 
-    [Arguments]    ${email}=test@itml.gr    ${full_name}=robot    ${password}=password    #${ip4}=10.0.0.0    ${ext_id}=10000@domain.com
+    [Arguments]    ${email}=test@example.com    ${full_name}=robot    ${password}=password    #${ip4}=10.0.0.0    ${ext_id}=10000@domain.com
 
     ${body}=    Create Dictionary    email=${email}    full_name=${full_name}    password=${password}
 
@@ -103,7 +103,7 @@ Register User At Jwt Auth
 
 Create Temporary User
 
-    [Arguments]    ${email}=test@itml.gr    ${full_name}=robot    ${password}=password    #${ip4}=10.0.0.0    ${ext_id}=10000@domain.com
+    [Arguments]    ${email}=test@example.com    ${full_name}=robot    ${password}=password    #${ip4}=10.0.0.0    ${ext_id}=10000@domain.com
 
     ${body}=    Create Dictionary    email=${email}    full_name=${full_name}    password=${password}
 
@@ -120,7 +120,7 @@ Create Temporary User
 
 Get Token For User
 
-    [Arguments]    ${username}=test@itml.gr    ${password}=password    ${secret}=testing  
+    [Arguments]    ${username}=test@example.com    ${password}=password    ${secret}=testing  
 
     ${header}=      Create Dictionary    Content-Type=application/x-www-form-urlencoded;charset=utf-8    Accept=application/json;charset=utf-8
 

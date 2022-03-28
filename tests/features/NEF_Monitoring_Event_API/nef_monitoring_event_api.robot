@@ -22,7 +22,7 @@ Create Nef subscription
 
     [Tags]    create_nef_subscription
 
-    Initialize Test, Register And Import Scenario    email=dummy-monitor@itml.gr    full_name=robot    password=password
+    Initialize Test, Register And Import Scenario    email=dummy-monitor@example.com    full_name=robot    password=password
 
     ${subscriber_id}=      Set Variable    ${APF_ID}
 
@@ -63,7 +63,7 @@ One-time request to the Monitoring Event API by Authorized NetApp
 	Should Be Equal As Strings    ${resp.status_code}    201
 
     ${url}=    Parse Url      ${resp.headers['Location']}
-    Log        ${url.path}
+    Log        Url path: ${url.path}
 
     Should Match Regexp    ${url.path}    ^/nef/api/v1/3gpp-monitoring-event/v1/[0-9a-zA-Z]+/subscriptions/[0-9a-zA-Z]+
 
