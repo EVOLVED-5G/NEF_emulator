@@ -1,9 +1,9 @@
 *** Settings ***
-Documentation    This resource file contains the basic requests used by Nef. NGINX_HOSTNAME can be set as global variable, depends on environment used
+Documentation   This file contains the Test Cases for Nef AsSessionsWithQoS API.
 Resource        /opt/robot-tests/tests/resources/common.resource
 Resource        /opt/robot-tests/tests/resources/common/basicRequests.robot
 Library         /opt/robot-tests/tests/libraries/allBodyRequests.py
-Library    Collections
+Library         Collections
 
 # Test Setup    Initialize Test, Register And Import Scenario  
         

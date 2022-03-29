@@ -34,9 +34,6 @@ Post Request Nef
     [Arguments]    ${endpoint}    ${json}=${EMTPY}    ${server}=${NONE}    ${auth}=${NONE}
     [Timeout]      60s
 
-    Log To Console    ${endpoint}
-    Log To Console    ${auth}
-
     ${headers}=    Create NEF Session    ${server}    ${auth}
 
     ${resp}=       POST On Session    apisession    ${endpoint}    headers=${headers}    json=${json}    expected_status=any
