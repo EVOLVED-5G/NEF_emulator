@@ -9,7 +9,7 @@ def monitoring_event_sub_body():
 
 def one_time_monitoring_event_body():
     return {
-        "externalId": "10003@domain.com",
+        "externalId": "10002@domain.com",
         "notificationDestination": "http://localhost:80/api/v1/utils/monitoring/callback",
         "monitoringType": "LOCATION_REPORTING",
         "maximumNumberOfReports": 1,
