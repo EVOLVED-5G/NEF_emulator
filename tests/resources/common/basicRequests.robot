@@ -1,14 +1,13 @@
 *** Settings ***
-Documentation    This resource file contains the basic requests used by Capif. NGINX_HOSTNAME and CAPIF_AUTH can be set as global variables, depends on environment used
+Documentation    This resource file contains the basic requests used by Nef.
 Library          OperatingSystem
 Library          RequestsLibrary
 Library          Collections
-Library         /opt/robot-tests/tests/libraries/allBodyRequests.py
+Library          /opt/robot-tests/tests/libraries/allBodyRequests.py
 
 
 *** Variables ***
 ${NGINX_HOSTNAME}           %{NGINX_HOSTNAME}
-#http://nef_emulator-main_backend_1:80 
 ${NETAPP_NOT_REGISTERED}    not-valid
 ${NEF_BEARER}   
 
@@ -24,7 +23,6 @@ Create NEF Session
     ${headers}=    Run Keyword If    "${auth}" != "${NONE}" and "${auth}" != "${NETAPP_NOT_REGISTERED}"       Create Dictionary    Authorization=Bearer ${auth}  
     ...            ELSE IF           "${auth}" == "${NETAPP_NOT_REGISTERED}"                                  Create Dictionary    Authorization=Basic ${auth}  
     ...            ELSE IF           "${NEF_BEARER}" != ""                                                    Create Dictionary    Authorization=Bearer ${NEF_BEARER}                                                                             
-    # ...            ELSE              Create Dictionary
 
     [Return]    ${headers}
 
@@ -61,6 +59,7 @@ Put Request Nef
     ${headers}=    Create NEF Session    ${server}    ${auth}
 
     ${resp}=    PUT On Session    apisession    ${endpoint}    headers=${headers}    json=${json}    expected_status=any
+
     [Return]    ${resp}
 
 
@@ -72,12 +71,13 @@ Delete Request Nef
     ${headers}=    Create NEF Session    ${server}    ${auth}
 
     ${resp}=    DELETE On Session    apisession    ${endpoint}    headers=${headers}    expected_status=any
+
     [Return]    ${resp}
 
 
 Register User At Jwt Auth
 
-    [Arguments]    ${email}=test@example.com    ${full_name}=robot    ${password}=password    #${ip4}=10.0.0.0    ${ext_id}=10000@domain.com
+    [Arguments]    ${email}=test@example.com    ${full_name}=robot    ${password}=password    
 
     ${body}=    Create Dictionary    email=${email}    full_name=${full_name}    password=${password}
 
@@ -91,7 +91,7 @@ Register User At Jwt Auth
 
     ${access_token}=    Get Token For User    username=${email}    password=${password}
 
-    ${json}=            Import Scenario Body    #${ip4}    ${ext_id}
+    ${json}=            Import Scenario Body    
 
     Import Scenario     ${json}    ${access_token}
 
@@ -100,7 +100,7 @@ Register User At Jwt Auth
 
 Create Temporary User
 
-    [Arguments]    ${email}=test@example.com    ${full_name}=robot    ${password}=password    #${ip4}=10.0.0.0    ${ext_id}=10000@domain.com
+    [Arguments]    ${email}=test@example.com    ${full_name}=robot    ${password}=password    
 
     ${body}=    Create Dictionary    email=${email}    full_name=${full_name}    password=${password}
 
@@ -124,10 +124,8 @@ Get Token For User
     ${body}=        Create Dictionary    username=${username}    password=${password}    secret=${secret}   
 
     ${req_body}=    Convert Body    ${body}
-
-    # Create Session    mysession    ${NGINX_HOSTNAME}     verify=True
     
-    ${resp}=    POST On Session    mysession    /api/v1/login/access-token    headers=${header}    data=${req_body}    expected_status=any
+    ${resp}=        POST On Session    mysession    /api/v1/login/access-token    headers=${header}    data=${req_body}    expected_status=any
 
     Should Be Equal As Strings    ${resp.status_code}    200
 
@@ -139,8 +137,6 @@ Get Token For User
 Import Scenario
 
     [Arguments]     ${json}    ${access_token}
-
-    # Create Session    mysession    ${NGINX_HOSTNAME}     verify=True
     
     ${resp}=    Post Request Nef    endpoint=/api/v1/utils/import/scenario    json=${json}     auth=${access_token}
 

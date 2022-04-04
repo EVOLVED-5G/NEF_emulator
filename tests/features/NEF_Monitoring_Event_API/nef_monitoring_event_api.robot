@@ -1,10 +1,10 @@
 *** Settings ***
-Documentation   This file contains the Monitoring Event Api's Test Cases. 
+Documentation    This resource file contains the basic requests used by Nef. NGINX_HOSTNAME can be set as global variable, depends on environment used
 Resource        /opt/robot-tests/tests/resources/common.resource
 Resource        /opt/robot-tests/tests/resources/common/basicRequests.robot
-Resource        ../../resources/common/basicRequests.robot
+Resource    ../../resources/common/basicRequests.robot
 Library         /opt/robot-tests/tests/libraries/allBodyRequests.py
-Library         Collections
+Library    Collections
         
 *** Variables ***
 ${NETAPP_NOT_REGISTERED}        not-valid
@@ -22,7 +22,7 @@ Create Nef subscription
 
     [Tags]    create_nef_subscription
 
-    Initialize Test, Register And Import Scenario    email=dummy-monitor@example.com    full_name=robot    password=password
+    Initialize Test, Register And Import Scenario    email=dummy-monitor@example.com    full_name=robot2    password=password    num=2
 
     ${subscriber_id}=      Set Variable    ${APF_ID}
 
@@ -41,7 +41,7 @@ Create Nef subscription
 
     Set Global Variable    ${sub_id}    ${subscription_id}
 
-    Set Global Variable    ${subscriber_id}    ${subscriber_id}
+    Set Global Variable    ${subber_id}    ${subscriber_id}
 
     Set Global Variable    ${NEF_TOKEN}    ${NEF_BEARER}
 
@@ -50,32 +50,33 @@ Create Nef subscription
 
 # One-time request to the Monitoring Event API by Authorized NetApp
 
-#     Initialize Test, Register And Import Scenario    email=test@example.com    full_name=robot    password=password
+#     # Initialize Test, Register And Import Scenario    email=test@example.com    full_name=robot1    password=password    num=1
 
-# #    ${subscriber_id}=    Set Variable    ${APF_ID}
 
-# #    ${subscription_id}=  Set Variable    ${sub_id}
+#     ${subscriber_id}=    Set Variable    ${subber_id}
 
-# #    Log To Console       sub_id: ${subscription_id}
+#     ${subscription_id}=  Set Variable    ${sub_id}
 
-# #    ${resp}=             Delete Request Nef    endpoint=/nef/api/v1/3gpp-monitoring-event/v1/${subscriber_id}/subscriptions/${subscription_id}    auth=${NEF_BEARER}
+#     ${resp}=             Delete Request Nef    /nef/api/v1/3gpp-monitoring-event/v1/${subscriber_id}/subscriptions/${subscription_id}    auth=${NEF_TOKEN}
 
-#    ${subber_id}=          Set Variable    ${APF_ID}
+#     ${subscriber_id}=          Set Variable    ${APF_ID}
 
-#    ${request_body}=       One Time Monitoring Event Body
+#     ${request_body}=       One Time Monitoring Event Body
 
-#    ${resp}=               Post Request Nef    endpoint=/nef/api/v1/3gpp-monitoring-event/v1/${subber_id}/subscriptions    json=${request_body}    auth=${NEF_BEARER}
+#     ${resp}=               Post Request Nef    endpoint=/nef/api/v1/3gpp-monitoring-event/v1/${subscriber_id}/subscriptions    json=${request_body}    auth=${NEF_BEARER}
 
-# 	Should Be Equal As Strings    ${resp.status_code}    200
+#     Should Be Equal As Strings    ${resp.status_code}    200
 
-#    Log To Console         Response body: ${resp.json()}
+#     Log To Console         Response body: ${resp.json()}
 
 
 Create Nef subscription with already active
 
     [Tags]    create_nef_subscription_w_already_active_sub
 
-    ${subscriber_id}=      Set Variable    ${APF_ID}
+    ${subscriber_id}=      Set Variable    ${subber_id}
+
+    Log To Console    ${subscriber_id}
 
     ${request_body}=       Monitoring Event Sub Body
 
@@ -90,7 +91,7 @@ Create subscription by unAuthorized NetApp
 
     [Tags]    create_nef_subscription_w_unauthorized_netapp
 
-    ${subscriber_id}=      Set Variable    ${APF_ID}
+    ${subscriber_id}=      Set Variable    ${subber_id}
 
     ${request_body}=       Monitoring Event Sub Body
 
@@ -105,7 +106,7 @@ Read all active subscriptions by Authorized NetApp
 
     [Tags]    get_NetApp_subscriptions
 
-    ${subscriber_id}=    Set Variable    ${APF_ID}
+    ${subscriber_id}=    Set Variable    ${subber_id}
 
     ${resp}=             Get Request Nef    /nef/api/v1/3gpp-monitoring-event/v1/${subscriber_id}/subscriptions    auth=${NEF_TOKEN}
 
@@ -113,7 +114,7 @@ Read all active subscriptions by Authorized NetApp
 
     Log To Console       Response body: ${resp.json()}
 
-    ${length}=           Get Length    ${resp.json()}
+    ${length}=    Get Length    ${resp.json()}
 
     Log To Console       Length of list: ${length} 
 
@@ -122,13 +123,13 @@ Read all active subscriptions by Authorized NetApp with no active ones
 
     [Tags]    get_NetApp_subscriptions_no_active
 
-    ${subscriber_id}=    Set Variable    ${APF_ID}
+    ${subscriber_id}=    Set Variable    ${subber_id}
 
     ${subscription_id}=  Set Variable    ${sub_id}
 
-    ${resp}=             Delete Request Nef    /nef/api/v1/3gpp-monitoring-event/v1/${subscriber_id}/subscriptions/${subscription_id}    auth=${NEF_BEARER}
+    ${resp}=             Delete Request Nef    /nef/api/v1/3gpp-monitoring-event/v1/${subscriber_id}/subscriptions/${subscription_id}    auth=${NEF_TOKEN}
 
-    ${resp}=             Get Request Nef       /nef/api/v1/3gpp-monitoring-event/v1/${subscriber_id}/subscriptions    auth=${NEF_BEARER}
+    ${resp}=             Get Request Nef    /nef/api/v1/3gpp-monitoring-event/v1/${subscriber_id}/subscriptions    auth=${NEF_TOKEN}
 
 	Should Be Equal As Strings    ${resp.status_code}    204
 
@@ -137,7 +138,7 @@ Read individual subscription by Authorized NetApp
 
     [Tags]    get_NetApp_individual_subscription
 
-    ${subscriber_id}=      Set Variable    ${APF_ID}
+    ${subscriber_id}=      Set Variable    ${subber_id}
 
     ${request_body}=       Monitoring Event Sub Body
     
@@ -168,7 +169,7 @@ Read individual subscription by Authorized NetApp with invalid subscription id
 
     [Tags]    get_NetApp_individual_subscription_with_invalid_sub_id
 
-    ${subscriber_id}=    Set Variable    ${APF_ID}
+    ${subscriber_id}=    Set Variable    ${subber_id}
 
     ${resp}=             Get Request Nef    /nef/api/v1/3gpp-monitoring-event/v1/${subscriber_id}/subscriptions${SUBSCRIPTION_ID_NOT_VALID}
 
@@ -203,7 +204,7 @@ Update individual subscription by Authorized NetApp
 
     [Tags]    update_individual_sub
 
-    ${subscriber_id}=    Set Variable    ${APF_ID}
+    ${subscriber_id}=    Set Variable    ${subber_id}
 
     ${subscription_id}=  Set Variable    ${sub_id}    
 
@@ -220,7 +221,7 @@ Update individual subscription by Authorized NetApp with invalid subscription id
 
     [Tags]    update_individual_sub_w_invalid_id
 
-    ${subscriber_id}=    Set Variable    ${APF_ID}
+    ${subscriber_id}=    Set Variable    ${subber_id}
 
     ${request_body}=     Monitoring Event Sub Body
 
@@ -246,7 +247,7 @@ Delete individual subscription by Authorized NetApp
 
     [Tags]    delete_individual_sub
 
-    ${subscriber_id}=    Set Variable    ${APF_ID}
+    ${subscriber_id}=    Set Variable    ${subber_id}
 
     ${subscription_id}=  Set Variable    ${sub_id}
 
@@ -261,7 +262,7 @@ Delete individual subscription by Authorized NetApp with invalid subscription id
 
     [Tags]    delete_individual_sub_unauthorized_netapp_w_invalid_sub_id
 
-    ${subscriber_id}=    Set Variable    ${APF_ID}
+    ${subscriber_id}=    Set Variable    ${subber_id}
 
     ${resp}=             Delete Request Nef    endpoint=/nef/api/v1/3gpp-monitoring-event/v1/${subscriber_id}/subscriptions/${SUBSCRIPTION_ID_NOT_VALID}    auth=${NEF_TOKEN}
 
@@ -272,13 +273,28 @@ Delete individual subscription by unAuthorized NetApp
 
     [Tags]    delete_individual_sub_unauthorized_netapp
 
-    ${subscriber_id}=    Set Variable    ${APF_ID}
+    ${subscriber_id}=    Set Variable    ${subber_id}
 
     ${subscription_id}=  Set Variable    ${sub_id}
 
     ${resp}=             Delete Request Nef    endpoint=/nef/api/v1/3gpp-monitoring-event/v1/${NETAPP_NOT_REGISTERED}/subscriptions/${subscription_id}    auth=${access_token}
 
     Should Be Equal As Strings    ${resp.status_code}    401
+
+    
+One-time request to the Monitoring Event API by Authorized NetApp
+
+    Initialize Test, Register And Import Scenario    email=test@example.com    full_name=robot1    password=password    num=1
+
+    ${subscriber_id}=          Set Variable    ${APF_ID}
+
+    ${request_body}=       One Time Monitoring Event Body
+
+    ${resp}=               Post Request Nef    endpoint=/nef/api/v1/3gpp-monitoring-event/v1/${subscriber_id}/subscriptions    json=${request_body}    auth=${NEF_BEARER}
+
+    Should Be Equal As Strings    ${resp.status_code}    200
+
+    Log To Console         Response body: ${resp.json()}
 
 
 *** Comments ***
