@@ -1,12 +1,11 @@
 *** Settings ***
-Documentation    This resource file contains the basic requests used by Nef. NGINX_HOSTNAME can be set as global variable, depends on environment used
+Documentation   This file contains the Test Cases for the As Session with QoS API of Nef Emulator.
 Resource        /opt/robot-tests/tests/resources/common.resource
 Resource        /opt/robot-tests/tests/resources/common/basicRequests.robot
 Library         /opt/robot-tests/tests/libraries/allBodyRequests.py
-Library    Collections
+Library         Collections
 
-# Test Setup    Initialize Test, Register And Import Scenario  
-        
+
 *** Variables ***
 ${NETAPP_NOT_REGISTERED}        not-valid
 ${SUBSCRIPTION_ID_NOT_VALID}    6229fea993b01806fee65775
@@ -36,7 +35,6 @@ create_nef_subscription_function
     Set Global Variable    ${sub_id}    ${subscription_id}
 
     Log To Console         Response body: ${resp.json()}
-
 
 
 *** Test Cases ***
