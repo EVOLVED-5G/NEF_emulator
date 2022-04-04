@@ -48,28 +48,6 @@ Create Nef subscription
     Log To Console         Response body: ${resp.json()}
 
 
-# One-time request to the Monitoring Event API by Authorized NetApp
-
-#     # Initialize Test, Register And Import Scenario    email=test@example.com    full_name=robot1    password=password    num=1
-
-
-#     ${subscriber_id}=    Set Variable    ${subber_id}
-
-#     ${subscription_id}=  Set Variable    ${sub_id}
-
-#     ${resp}=             Delete Request Nef    /nef/api/v1/3gpp-monitoring-event/v1/${subscriber_id}/subscriptions/${subscription_id}    auth=${NEF_TOKEN}
-
-#     ${subscriber_id}=          Set Variable    ${APF_ID}
-
-#     ${request_body}=       One Time Monitoring Event Body
-
-#     ${resp}=               Post Request Nef    endpoint=/nef/api/v1/3gpp-monitoring-event/v1/${subscriber_id}/subscriptions    json=${request_body}    auth=${NEF_BEARER}
-
-#     Should Be Equal As Strings    ${resp.status_code}    200
-
-#     Log To Console         Response body: ${resp.json()}
-
-
 Create Nef subscription with already active
 
     [Tags]    create_nef_subscription_w_already_active_sub

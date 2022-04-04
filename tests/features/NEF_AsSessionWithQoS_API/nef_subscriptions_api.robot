@@ -45,7 +45,7 @@ Create Nef subscription
 
     [Tags]    create_nef_subscription
 
-    Initialize Test, Register And Import Scenario    email=dummy-session@itml.gr    full_name=robot    password=password     num=2  
+    Initialize Test, Register And Import Scenario    email=dummy-session@example.com    full_name=robot    password=password     num=2  
 
     create_nef_subscription_function
 

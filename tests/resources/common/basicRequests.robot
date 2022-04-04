@@ -100,7 +100,7 @@ Register User At Jwt Auth
 
 Create Temporary User
 
-    [Arguments]    ${email}=dummy-monitor@itml.gr     ${full_name}=robot    ${password}=password    
+    [Arguments]    ${email}=dummy-monitor@example.com     ${full_name}=robot    ${password}=password    
 
     ${body}=    Create Dictionary    email=${email}    full_name=${full_name}    password=${password}
 
@@ -117,7 +117,7 @@ Create Temporary User
 
 Get Token For User
 
-    [Arguments]    ${username}=dummy-monitor@itml.gr     ${password}=password    ${secret}=testing  
+    [Arguments]    ${username}=dummy-monitor@example.com      ${password}=password    ${secret}=testing  
 
     ${header}=      Create Dictionary    Content-Type=application/x-www-form-urlencoded;charset=utf-8    Accept=application/json;charset=utf-8
 
