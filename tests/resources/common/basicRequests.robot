@@ -29,7 +29,7 @@ Create NEF Session
 
 Post Request Nef
 
-    [Arguments]    ${endpoint}    ${json}=${EMTPY}    ${server}=${NONE}    ${auth}=${NONE}
+    [Arguments]    ${endpoint}    ${json}=${NONE}    ${server}=${NONE}    ${auth}=${NONE}
     [Timeout]      60s
 
     ${headers}=    Create NEF Session    ${server}    ${auth}
@@ -77,7 +77,7 @@ Delete Request Nef
 
 Register User At Jwt Auth
 
-    [Arguments]    ${email}=test@example.com    ${full_name}=robot    ${password}=password    
+    [Arguments]    ${email}     ${full_name}    ${password}    ${num}  
 
     ${body}=    Create Dictionary    email=${email}    full_name=${full_name}    password=${password}
 
@@ -91,7 +91,7 @@ Register User At Jwt Auth
 
     ${access_token}=    Get Token For User    username=${email}    password=${password}
 
-    ${json}=            Import Scenario Body    
+    ${json}=            Import Scenario Body    ${num}  
 
     Import Scenario     ${json}    ${access_token}
 
@@ -100,7 +100,7 @@ Register User At Jwt Auth
 
 Create Temporary User
 
-    [Arguments]    ${email}=test@example.com    ${full_name}=robot    ${password}=password    
+    [Arguments]    ${email}=dummy-monitor@itml.gr     ${full_name}=robot    ${password}=password    
 
     ${body}=    Create Dictionary    email=${email}    full_name=${full_name}    password=${password}
 
@@ -117,7 +117,7 @@ Create Temporary User
 
 Get Token For User
 
-    [Arguments]    ${username}=test@example.com    ${password}=password    ${secret}=testing  
+    [Arguments]    ${username}=dummy-monitor@itml.gr     ${password}=password    ${secret}=testing  
 
     ${header}=      Create Dictionary    Content-Type=application/x-www-form-urlencoded;charset=utf-8    Accept=application/json;charset=utf-8
 
@@ -125,7 +125,7 @@ Get Token For User
 
     ${req_body}=    Convert Body    ${body}
     
-    ${resp}=        POST On Session    mysession    /api/v1/login/access-token    headers=${header}    data=${req_body}    expected_status=any
+    ${resp}=    POST On Session    mysession    /api/v1/login/access-token    headers=${header}    data=${req_body}    expected_status=any
 
     Should Be Equal As Strings    ${resp.status_code}    200
 
@@ -158,4 +158,3 @@ Clean Test Information By HTTP Requests
 
     ${resp}=                      DELETE On Session      jwtsession    /testevents
     Should Be Equal As Strings    ${resp.status_code}    200
-
