@@ -1,6 +1,6 @@
 def create_nef_subscription_body():
     return {
-        "ipv4Addr": "10.0.0.3",
+        "ipv4Addr": "10.0.0.1",
         "notificationDestination": "http://localhost:80/api/v1/utils/session-with-qos/callback",
         "snssai": {
             "sst": 1,
