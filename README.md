@@ -1,8 +1,14 @@
 # NEF_emulator
 
+
+<p align="center">
+  <img src="./backend/app/app/static/NEF_logo_400x400_light.svg" />
+</p>
+
+
 ## ⚙ Setup locally
 
-**Host prerequisites**: `docker`, `docker-compose`, `build-essential`\*, `jq`\*\*
+**Host prerequisites**: `docker`, `docker-compose 1.29.2`, `build-essential`\*, `jq`\*\*
 
 After cloning the repository, there are 4 more steps to do. For convinience, we have created a [`Makefile`](Makefile) that contains a command for each step + several common `docker-compose` tasks which you may find handy in the future.
 
@@ -35,7 +41,7 @@ make db-init
 
 After the containers are up and running:
 
- - access and start playing with the Swager UI at: [localhost:8888/docs](http://localhost:8888/docs)
+ - access and start playing with the Swager UI at: [localhost:8888/nef/docs](http://localhost:8888/nef/docs)
  - login to the admin dashboard at: [localhost:8888/login](http://localhost:8888/login)
      - Default credentials: `admin@my-email.com` / `pass`
      - they can be found/changed inside your `.env` file

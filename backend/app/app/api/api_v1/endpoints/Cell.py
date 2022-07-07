@@ -3,6 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, Path
 from sqlalchemy.orm import Session
 from app import crud, models, schemas
 from app.api import deps
+from app.api.api_v1.endpoints.utils import retrieve_ue_state
 
 router = APIRouter()
 
@@ -68,11 +69,26 @@ def update_Cell(
     """
     Update a cell.
     """
+    UEs = crud.ue.get_multi_by_owner(db=db, owner_id=current_user.id, skip=0, limit=1000)
+
+    for ue in UEs:
+        if retrieve_ue_state(ue.supi, current_user.id):
+            raise HTTPException(status_code=400, detail="You are not allowed to edit cells while UEs are moving")
+
     Cell = crud.cell.get_Cell_id(db=db, id=cell_id)
     if not Cell:
         raise HTTPException(status_code=404, detail="Cell not found")
     if not crud.user.is_superuser(current_user) and (Cell.owner_id != current_user.id):
         raise HTTPException(status_code=400, detail="Not enough permissions")
+
+    
+    #check if the requested cell_id (hex) exists in db
+    if item_in.cell_id != cell_id:
+        cells = crud.cell.get_multi_by_owner(db=db, owner_id=current_user.id, skip=0, limit=100)
+        for cell_in in cells:
+            if item_in.cell_id == cell_in.cell_id:
+                raise HTTPException(status_code=409, detail=f"Cell with id {item_in.cell_id} already exists")
+        
     Cell = crud.cell.update(db=db, db_obj=Cell, obj_in=item_in)
     return Cell
 

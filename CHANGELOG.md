@@ -1,14 +1,185 @@
 # Changelog
 
+## v1.5.0
+
+***Summary:***
+
+> - *changes and optimizations for making NEF_emulator capable of running bigger scenarios*
+> - *UE movement approach change:*
+>   - *old: iterate over all path-points and simulate speed by using sleep() (LOW=1sec HIGH=0.1sec)*
+>   - *new: constantly use sleep(1sec) and simulate speed by skipping (or not) path-points*
+>   - *more on the pros/cons of this approach can be found at the relative source code section, the old one is commented out*
+> - *update of `leaflet.js` to version `1.8.0` (we've indetified a bug when closing mark tooltips, it's supposed to be fixed by the maintainers of the project at the upcoming release)*
+
+
+### UI changes
+
+ - `dashboard-cells.js` minor fix to display error details correctly in the toast message
+ - 🪛 fix `/map` js console errors caused by the UEs layer-checkbox (access to `null` marker)
+ - 🪛 fix `/map` UEs buttons: handle case of UEs with no paths assigned
+ - `/dashboard` page change: instead of 2 consecutive API requests on UE `Save` 👇:
+   - 1 API request to assign path everytime the user selects something different
+   - 1 API request on `Save` button
+ - `/map` page: add type-of-service column to datatable (cells now display `Monitoring Event API` or `AsSession With QoS API`)
+ - `/login`: add "hit enter --> submit form" functionality
+ - `/register`: add "hit enter --> submit form" functionality
+ - add `NEF` logo
+ - move part of `login.js` code to `app.js` (more clean approach + added `app.default_redirect` variable)
+ - `maps.js`: increase timeouts to 60 sec (edge case with >200 UEs, start/stop takes time)
+ - `maps.js`: add `api_get_moving_UEs()` to only retrieve moving UEs ➡ move part of `ui_map_paint_UEs()` to `ui_map_paint_moving_UEs()`
+ - `app.js`: move `api_test_token()` outside document.ready() for quicker user auth checks
+ - `401` page redirect: when the token can't be validated the user is redirected to a 401 Unauthorized page and after a few seconds is redirected to `/login`. Previously, the user was redirected to login without being notified.
+ - `map.js`: optimize `helper_check_path_is_already_painted( path_id )` by replacing the simple array of painted paths with a key-value object
+
+
+### Backend
+
+ - ⛔ for optimization purposes, the UEs movement is handled in memory (no more intensive read/writes to Postgres) 👇
+ - ➕ `api/v1/ue_movement/state-ues` now returns moving UEs information only. It helps with the edge cases of having many UEs and only a few of them actually moving around
+ - create new module/file for threads `utils.py` ➡ `ue_movement.py`
+     - ⛔ `/utils/state-loop/{{supi}}` ➡ `/ue_movement/state-loop/{{supi}}`
+     - ⛔ `/utils/start-loop` ➡ `/ue_movement/start-loop`
+     - ⛔ `/utils/stop-loop` ➡ `/ue_movement/stop-loop`
+ - `utils.py`: add a 2nd approach for making the UEs move within their path and control their speed (see #2eb19f8)
+ - `SQLAlchemy`: add `pool_size=150, max_overflow=20` to `create_engine( ... )`
+ - fix `NoneType` exception on MonitoringEvent one time request when cell is None
+ - Add middleware to return custom response header `X-Process-Time` that counts request-response proccesing time 
+ - Split callbacks in two files 👉 From `send_callback.py` ➡ `monitoring_callbacks.py` + `qos_callback.py`
+ - fix callback notification for QoS after the transition from db to memory
+
+
+### Database
+
+ - postgreSQL add `command: -c shared_buffers=256MB -c max_connections=200` to `docker-compose`
+ - MonitoringEvent: migration from postgreSQL to MongoDB 👇
+     - fix `check_numberOfReports` function accordingly
+
+
+### Libraries
+
+ - upgrade `leaflet.js` (`1.7.1` to `1.8.0`)
+
+
+
+<br><br>
+
+## v1.4.1
+
+### Migration to Python 3.9
+
+(see commit: 2ef55ed)
+
+ - updated `tiangolo/uvicorn -gunicorn -fastapi:python3.9 (from 3.7)`
+ - updated `python  = "3.9.7"    (from 3.7)`
+ - updated `uvicorn = "^0.17.6"  (from 0.15.0)`
+ - updated `fastapi = "^0.78.0"  (from 0.54.1)`
+ - updated `pymongo = "^4.1.0"   (from 3.12.1)`
+ - updated `requests = "^2.27.0" (from 2.23.0)`
+ - updated `gunicorn = "^20.1.0" (from 20.0.4)`
+ - removed `celery = "^4.4.2"`
+ - removed `alembic = "^1.4.2"`
+ - removed `GeoAlchemy2 = "^0.9.4"`
+
+
+
+### 📄 docs
+
+ - add documentation for the UI (historical context, naming conventions, front-end libraries & approaches used etc...)
+
+
+
+### Backend
+
+- 🚫🤚 Forbid user to update cells while UEs are moving
+- Add timeout values in `requests.request` 👇 
+    - Timeout values according to https://docs.pythonrequests.org/en/master/user/advanced/#timeouts 
+    - Fixes "hanging" UEs problem: when subscribing to NEF APIs, specific IPs included in the `notificationDestination` URL caused timeouts. Since the default for Python Requests is `None` (wait until the connection is closed) the UE "freezes" until the request times out and the exception is finally caught.
+
+<br><br>
+
+## v1.4.0
+
+### Scenario `import` / `export`
+
+ - ⛔ breaking change: `json` data of exported scenarios from `v1.3.x` will not able to be imported to `v1.4.0`. Users will have to recreate them manually.
+
+
+### UI changes
+
+ - `/dashboard` js split (see issue: #35):
+     - `dashboard.js` keeps only the `document.ready` function + some helper ones
+     - `dashboard-gnbs.js` has the gNBs part
+     - `dashboard-cells.js` has the Cells part
+     - `dashboard-ues.js` has the UEs part
+     - `dashboard-paths.js` has the Paths part
+ - `/dashboard` split goals:
+    - ✅ use `beforeSend`, `complete` and spinners for making visible that reload takes place in the background. Locally this happens so fast that the user doesn't notice.
+    - ✅ change `api_get/put/delete/post()` functions to return to callbacks for UI actions
+    - ✅ introduce `ui_fetch_and_update()` functions that use the above API calls and after they fetch data, they update the UI. This helped us prevent some states with "stale" data
+    - ✅ add layers to maps to let the users choose what they want to see or not (Cells, UEs, Paths) when adding / editing
+- `/dashboard` fixes & improvements
+    - increase map 🗺️ height inside every modal from 300 to 600px
+    - `add_cell` modal: fix `NaN` errors when the user doesn't click on the map to generate X,Y for the new cell
+    - `ui_map_paint_path()` function can now take `opacity` argument
+    - 🪛 handle `cell_id_hex == null`: display `-` in Datatable cells
+- `/map`:
+    - 🪛 `map.js` minor fix: add a list of painted paths to first check and -if not already added on the map- continue painting it. (The problem appeared visually when multiple UEs had the same path assigned)
+    - ✅ handle `cell_id_hex == null` and display grey ⚪ UE-icon when not connected to any cell (this also applies to every UE just after an `import`)
+
+
+### NEF APIs / backend
+
+- Fix problem with `path_id` on import/export scenario. (e.g., if we export a scenario with UEs with path_ids 1,2,4, when the scenario is imported, the path with id 4 is added as path with 3. The UE is successfully correlated with the new path id 3)
+- 🙅‍♂️Forbid user to update (gnb/cell)'s `hex ids`, if they already exist
+- Add disconnected state functionality. 👉 When there is no radio coverage 📵 the UE disconnects from the cell that it's currently connected. 
+
+
+### Docker 🐳
+
+- 🔥 hotfix `make build` / `make build-no-cache`: add `--profile` option to `docker-compose`
+
+
+### Libraries
+
+- 🪛 Fix build error caused by `jinja2` newer version (lock to `v.3.0.3`)
+
+
+### Other
+
+- ✔ `make db-reset` : except for reseting the postgresql db, add functionality to also reset mongo db
+
+
+<br><br>
+
+
+
+
+
 ## v1.3.2
 
 - Fix UE-association-path selection with `path_id` 0 (no path selected) - both dashboard and backend
 - Fix bug in check_expiration_time function
 - The Monitoring Event subscription by external id is retrieved by additional filter `owner_id`
 
+
+<br><br>
+
+
+
+
+
+
 ## v1.3.1
 
 - Fix endpoints on MonitoringEvent API <kbd>{apiroot}/nef/api/v1/3gpp-monitoring-event/**v1**/{scsAsId}/subscriptions</kbd>
+
+
+<br><br>
+
+
+
+
+
 
 ## v1.3.0
 
@@ -71,9 +242,15 @@
 
  
 
+
+<br><br>
+
+
+
+
 ## v.1.2.0
 
-## Docker 🐳
+### Docker 🐳
 
  - ⚠ new containers added to the composition
    - `mongo:4.4.10`
@@ -87,7 +264,7 @@
        make db-init          #add data (optional)
 
 
-## NEF APIs / backend
+### NEF APIs / backend
 
  - new *"Session With QoS"* `endpoints`
      - <kbd style="background-color:#eff7ff;">GET</kbd> `/api/v1/3gpp-as-session-with-qos/v1/{scsAsId}/subscriptions` ✔ added
@@ -125,7 +302,7 @@
 
 
 
-## UI changes
+### UI changes
 
  - `/map` add search/filter option to datatables
  - the users can now generate their own scenarios on the map 🗺 more easily:
@@ -135,7 +312,7 @@
      - `/dashboard` add toastr js to display messages
 
 
-## Other
+### Other
 
  - ⛔ `make db-init-simple` is deprecated and replaced by `make db-init`
  - ✔ `make db-reinit` can now be used as a *shortcut* of: `make db-reset` -> `make db-init`
@@ -145,10 +322,14 @@
 
 
 
-## Libraries
+### Libraries
 
  - added `pymongo = "^3.12.1"`
 
+
+
+
+<br><br>
 
 
 

@@ -94,7 +94,7 @@ def create_subscription(
     
     #Create the document in mongodb
 
-    send_qos_gnb(item_in.qosReference, db_mongo, UE) ##Validate if qos reference matches any of the standardized 5qi values and create/send the QoS Profile to NG-RAN
+    # send_qos_gnb(item_in.qosReference, db_mongo, UE) ##Validate if qos reference matches any of the standardized 5qi values and create/send the QoS Profile to NG-RAN
 
     json_data = jsonable_encoder(item_in.dict(exclude_unset=True))
     json_data.update({'owner_id' : current_user.id})
@@ -116,11 +116,11 @@ def create_subscription(
     response_header = {"location" : link}
 
     #Update the subscription with the new resource (link) and return the response (+response header)
-
     crud_mongo.update_new_field(db_mongo, db_collection, inserted_doc.inserted_id, {"link" : link})
+    
+    #Retrieve the updated document | UpdateResult is not a dict
     updated_doc = crud_mongo.read_uuid(db_mongo, db_collection, inserted_doc.inserted_id)
 
-    
     updated_doc.pop("owner_id") #Remove owner_id from the response
     
     http_response = JSONResponse(content=updated_doc, status_code=201, headers=response_header)
@@ -189,10 +189,10 @@ def update_subscription(
     json_data = jsonable_encoder(item_in)
     crud_mongo.update_new_field(db_mongo, db_collection, subscriptionId, json_data)
 
-    #Retrieve the updated document
-    retrieved_doc = crud_mongo.read_uuid(db_mongo, db_collection, subscriptionId)
-    retrieved_doc.pop("owner_id")
-    http_response = JSONResponse(content=retrieved_doc, status_code=200)
+    #Retrieve the updated document | UpdateResult is not a dict
+    updated_doc = crud_mongo.read_uuid(db_mongo, db_collection, subscriptionId)
+    updated_doc.pop("owner_id")
+    http_response = JSONResponse(content=updated_doc, status_code=200)
     add_notifications(http_request, http_response, False)
     return http_response
 
@@ -221,7 +221,7 @@ def delete_subscription(
     if not user.is_superuser(current_user) and (retrieved_doc['owner_id'] != current_user.id):
         raise HTTPException(status_code=400, detail="Not enough permissions")
 
-    crud_mongo.delete(db_mongo, db_collection, subscriptionId)
+    crud_mongo.delete_by_uuid(db_mongo, db_collection, subscriptionId)
     http_response = JSONResponse(content=retrieved_doc, status_code=200)
     add_notifications(http_request, http_response, False)
     return http_response
