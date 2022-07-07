@@ -8,7 +8,7 @@ Library         Collections
         
 *** Variables ***
 ${NETAPP_NOT_REGISTERED}        not-valid
-${SUBSCRIPTION_ID_NOT_VALID}    0
+${SUBSCRIPTION_ID_NOT_VALID}    6229fea993b01806fee65775
 ${access_token}                 not-valid
 ${sub_id} 
 
@@ -134,7 +134,7 @@ Read individual subscription by Authorized NetApp
     Set Global Variable    ${sub_id}    ${subscription_id}
 
     # Actual process
-    ${subscription_id}=  Set Variable    ${sub_id}    
+    # ${subscription_id}=  Set Variable    ${sub_id}    
 
     ${resp}=             Get Request Nef    /nef/api/v1/3gpp-monitoring-event/v1/${subscriber_id}/subscriptions/${subscription_id}    auth=${NEF_TOKEN}
 
@@ -149,7 +149,7 @@ Read individual subscription by Authorized NetApp with invalid subscription id
 
     ${subscriber_id}=    Set Variable    ${subber_id}
 
-    ${resp}=             Get Request Nef    /nef/api/v1/3gpp-monitoring-event/v1/${subscriber_id}/subscriptions${SUBSCRIPTION_ID_NOT_VALID}
+    ${resp}=             Get Request Nef    /nef/api/v1/3gpp-monitoring-event/v1/${subscriber_id}/subscriptions/${SUBSCRIPTION_ID_NOT_VALID}
 
 	Should Be Equal As Strings    ${resp.status_code}    404
 
