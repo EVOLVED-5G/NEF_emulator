@@ -69,6 +69,7 @@ services:
       - SERVER_HOST=https://${DOMAIN?Variable not set}
       # Allow explicit env var override for tests
       - SMTP_HOST=${SMTP_HOST}
+      - MONGO_CLIENT=${MONGO_CLIENT}
     build:
       context: ./backend
       dockerfile: Dockerfile.backend
