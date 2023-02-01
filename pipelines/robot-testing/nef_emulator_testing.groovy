@@ -128,7 +128,7 @@ pipeline{
                     }
                 }
                 sh """
-                    docker kill netapp_robot
+                    docker kill robot
                 """
             }
 
